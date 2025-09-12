@@ -1,26 +1,50 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import dotenv from 'dotenv';
-dotenv.config();
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+import path from "path";
+
+// dotenv.config({ path: "./backend/.env" }); // adjust path if needed
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+const __dirname = path.resolve();
+
+if (process.env.NODE_ENV !== "production") {
+  console.log("Running in development mode");
+  app.use(
+    cors({
+      origin: ["http://localhost:5173", "http://10.253.171.10:5173"],
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true,
+    })
+  );
+}
+
+dotenv.config();
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_KEY; // In production, use environment variables
+const JWT_SECRET = process.env.JWT_KEY;
 
 // Connect to MongoDB
+const dburl = process.env.MONGODB_URI  // ✅ keep this consistent
 
-const dburl = process.env.MONGODB_URI;
+console.log("Loaded MONGO_URL:", dburl);
 
+export const connectDB = async (url) => {
+  try {
+    const conn = await mongoose.connect(url);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log("Error in connecting to MongoDB", error);
+    process.exit(1); // 1 means failure
+  }
+};
+connectDB(dburl);
 
-mongoose.connect(dburl)
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('Failed to connect to MongoDB:', err));
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -324,6 +348,14 @@ app.get('/stats', authenticate, async (req, res) => {
     res.status(500).json({ message: 'Error fetching statistics', error: error.message });
   }
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
