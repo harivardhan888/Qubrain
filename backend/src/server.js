@@ -17,7 +17,7 @@ if (process.env.NODE_ENV !== "production") {
   console.log("Running in development mode");
   app.use(
     cors({
-      origin: ["http://localhost:5173", "http://10.253.171.10:5173"],
+      origin: ["http://localhost:5173", "http://localhost:5000", "https://qubrain.vercel.app"],
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     })

@@ -4,7 +4,7 @@ import FlashcardApp from './components/FlashCards'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 // import Admin from './components/Admin'
-const api = "https://qubrain.vercel.app";
+const api = "http://localhost:5000";
 function App() {
 
   return (

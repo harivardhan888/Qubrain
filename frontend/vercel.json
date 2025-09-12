@@ -1,6 +1,8 @@
 {
-    "rewrites": [
-      { "source": "/(.*)", "destination": "/index.html" }
-    ]
-  }
-  
+  "rewrites": [
+    {
+      "source": "/auth/(.*)",
+      "destination": "http://localhost:5000"
+    }
+  ]
+}
