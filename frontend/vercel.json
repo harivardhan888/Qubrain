@@ -1,5 +1,7 @@
 {
-  "env": {
-    "VITE_API_URL": "https://qubrain-backend.vercel.app"
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://qubrain-backend.vercel.app"
+    }
   }
 }
