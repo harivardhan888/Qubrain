@@ -13,15 +13,37 @@ app.use(express.json());
 
 const __dirname = path.resolve();
 
+// CORS configuration for both development and production
+const allowedOrigins = [
+  "http://localhost:5173", 
+  "http://localhost:5000", 
+  "https://qubrain.vercel.app",
+  "https://qubrain-app.vercel.app"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.log("CORS blocked origin:", origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    optionsSuccessStatus: 200 // For legacy browser support
+  })
+);
+
 if (process.env.NODE_ENV !== "production") {
   console.log("Running in development mode");
-  app.use(
-    cors({
-      origin: ["http://localhost:5173", "http://localhost:5000", "https://qubrain.vercel.app"],
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
-    })
-  );
+} else {
+  console.log("Running in production mode");
 }
 
 dotenv.config();
@@ -113,7 +135,7 @@ app.post('/auth/register', async (req, res) => {
     await user.save();
     
     // Create token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1H' });
     
     res.status(201).json({
       token,
@@ -166,6 +188,13 @@ app.get('/auth/me', authenticate, (req, res) => {
     name: req.user.name,
     email: req.user.email
   });
+});
+
+// Logout user (optional - mainly for logging purposes)
+app.post('/auth/logout', authenticate, (req, res) => {
+  // For JWT tokens, logout is typically handled on the client side
+  // This endpoint can be used for logging logout events or invalidating tokens
+  res.json({ message: 'Logged out successfully' });
 });
 
 // ===== FLASHCARDS ROUTES =====

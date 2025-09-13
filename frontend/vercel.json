@@ -1,8 +1,5 @@
 {
-  "rewrites": [
-    {
-      "source": "/auth/(.*)",
-      "destination": "http://localhost:5000"
-    }
-  ]
+  "env": {
+    "VITE_API_URL": "https://qubrain-backend.vercel.app"
+  }
 }

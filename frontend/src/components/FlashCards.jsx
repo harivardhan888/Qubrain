@@ -97,12 +97,25 @@ const FlashcardApp = ({api}) => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call logout endpoint if available (optional)
+      await axios.post(api + "/auth/logout");
+    } catch (error) {
+      // Ignore logout endpoint errors as it's optional
+      console.log("Logout endpoint not available or error occurred");
+    }
+    
+    // Clear local storage and state
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     delete axios.defaults.headers.common["Authorization"];
     setUser(null);
     setIsLoggedIn(false);
     setFlashcards([]);
+    setCurrentCardIndex(0);
+    setShowAnswer(false);
+    console.log("User logged out successfully");
   };
 
   const handleAnswer = async (correct) => {
@@ -413,8 +426,9 @@ const FlashcardApp = ({api}) => {
               </div>
               <button
                 onClick={handleLogout}
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                 title="Log Out"
+                aria-label="Log out of your account"
               >
                 <LogOut size={20} />
               </button>
